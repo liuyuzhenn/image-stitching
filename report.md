@@ -17,8 +17,10 @@
 6. 如果还有图像没拼接，则回到1，以第5步的结果为基准进行拼接；否则结束
 
 最终结果如下：
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps1.png">
+</div>
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps1.png) 
 
 图像之间没有明显裂缝，但由于是以中间图像为基准，两边变形非常严重，于是希望找到一个使每个图像变形能较为均匀的方法。
 
@@ -33,56 +35,78 @@
    如果不考虑拍摄时的遮挡和相机量测等误差的影像，且各张照片拍摄时的投影中心不变，那么理论上投影到以焦距为半径的圆柱上再进行拼接应该是不会产生变形的（这里的“不会变形”指的是已经投影后再进行透视变换不会变形），此时只有圆柱投影这一过程产生的变形，因此每张照片形变量相等。
 
    下方是圆柱投影的示意图：
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps2.jpg">
+</div>
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps2.jpg) 
 
 ​		经推导，圆柱投影时满足如下关系式：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps3.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps3.png">
+</div>
 
 ​		其中：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps4.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps4.png">
+</div>
 
- 
+
 
 ​		其中R取相机的焦距时，拼接出来每张图片的变形应该是最均匀的，但我们不知道f究竟是多少。下面定义变量***\*f\****：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps5.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps5.png">
+</div>
 
 ​	下图时f取0.5时圆柱投影后的结果：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps6.jpg) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps6.jpg">
+</div>
 
- 
+
 
 2. 单应矩阵
 
    先尝试通过不断剔除大于10倍中误差的点来进行粗差探测，但效果很差：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps7.jpg) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps7.jpg">
+</div>
 
 ​		最终采取间接平差+RanSAC的方法找出单应矩阵。
 
 ​		数学模型为：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps9.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps9.png">
+</div>
 
 ​		其中，X,Y为基准图中的像点坐标，x，y为变换图的像点坐标。
 
 ​		如果进行严密的带参数的间接平差，以x,y为观测值，移项后进行泰勒展开可以得到：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps10.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps10.png">
+</div>
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps11.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps11.png">
+</div>
 
 ​		由于这种方法需要初值，且需要迭代计算，计算量将会很大。可以采取以方程值作为观测值的间接平差简化计算:
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps12.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps12.png">
+</div>
 
 ​		其中：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps13.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps13.png">
+</div>
 
 RanSAC步骤：
 
@@ -92,7 +116,9 @@ RanSAC步骤：
 
 ​	3.  重复以上步骤N次。N可以由下式计算：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps14.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps14.png">
+</div>
 
 ​	4. 用所有内点进行平差，计算单应矩阵。
 
@@ -102,41 +128,62 @@ RanSAC步骤：
 
 ​	根据韦伯定律，人眼对亮度的响应是非线性的，所以这里融合采用余弦函数加权:
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps15.jpg) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps15.jpg">
+</div>
 
 ​	下图是f=0.5时拼接的最终结果（仍旧以中间图像为基准，最下角从小到大为图片拼接的顺序）：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps16.png) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps16.png">
+</div>
 
-f = 0.5
+<div align=center>
+ f = 0.5
+</div>
 
 ​	可以看出来，两边的变形仍旧非常大，但不同的是此时两边是变小了。
 
 ​	接下来尝试不同的f取值，可以得到不同的拼接结果：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps17.png) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps17.png">
+</div>
 
-f = 0.6
+<div align=center>
+ f = 0.6
+</div>
 
 ​									 
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps18.png) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps18.png">
+</div>
+<div align=center>
+ f = 0.7
+</div>
 
-f = 0.7
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps19.png">
+</div>
+<div align=center>
+ f = 0.8
+</div>
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps19.png) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps20.png">
+</div>
+<div align=center>
+ f = 0.9
+</div>
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps21.png">
+</div>
+<div align=center>
+ f = 1
+</div>
 
-f = 0.8
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps20.png) 
-
-f = 0.9
-
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps21.png) 
-
-f = 1
-
- 
 
 4.寻找最优f
 
@@ -146,11 +193,16 @@ f = 1
 
 ​	为了找到最合适的f，需要不断尝试。但为了省去人工判断，下面定义**形变系数ξ**：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps22.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps22.png">
+</div>
 
- 
 
-​	其中：![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps23.png)。
+
+​	其中：
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps23.png">
+</div>
 
 ​	当然，ξ只能衡量左右变长的变形大小，但在此实验中已经足够。
 
@@ -158,27 +210,35 @@ f = 1
 
 1. 点位中误差**sigma**(n为内点个数，以内点的中误差对整体的点位中误差进行无偏估计)：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps24.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps24.png">
+</div>
 
- 
+
 
 2. 结构相似性**SSIM**能反映对比度和亮度的差别，本次实验中计算全局的SSIM：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps25.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps25.png">
+</div>
 
- 
+
 
 ​	接下来从取f=0.50-1.26步长为0.01进行实验（采用间接平差+RANSAC+余弦函数加权融合），得到如下曲线图：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps26.jpg) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps26.jpg">
+</div>
 
- 
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps27.jpg) 
 
- 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps27.jpg">
+</div>
 
- 
+
+
+
 
 ### 3. 结果评价与分析
 
@@ -188,9 +248,12 @@ f = 1
 
 - 从变形上看，在区间[0.5,0.84]上，形变呈递减趋势；在f>0.84时，形变系数呈现递增趋势。由此可推断当f=0.84时拼接的变形最小，对应的结果如图所示:
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps28.png) 
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps28.png">
+</div>
 
 ​	此外，还可以大致推断相机的主距：
 
-![img](https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps29.png)
-
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/pic/wps29.png">
+</div>

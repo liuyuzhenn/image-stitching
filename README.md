@@ -8,7 +8,9 @@ Stich image sequence using cylinder projection and homography transform.
 
 # Demo
 
-![](https://github.com/Liu-Yuzhen/image-stitching/blob/master/demo/result.png)
+<div align=center>
+<img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/demo/result.jpg" width=1080>
+</div>
 
 
 
