@@ -10,7 +10,10 @@ Stich image sequence using cylinder projection and homography transform.
 
 <div align=center>
 <img src="https://github.com/Liu-Yuzhen/image-stitching/blob/master/demo/result.jpg" width=1080>
-</div>
+</div>
+
+# Report
+[report](https://github.com/Liu-Yuzhen/image-stitching/blob/master/report.md)
 
 
 
